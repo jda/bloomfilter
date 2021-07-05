@@ -7,11 +7,10 @@ import (
 )
 
 type BloomFilter struct {
-	m        uint32
-	k        int
-	buckets  []uint32
-	location []uint32
-	lock     sync.RWMutex
+	m       uint32
+	k       int
+	buckets []uint32
+	lock    sync.RWMutex
 }
 
 // New creates a new bloom filter. m should specify the number of bits.
@@ -20,10 +19,9 @@ type BloomFilter struct {
 func New(m, k int) *BloomFilter {
 	var n = uint32(math.Ceil(float64(m) / 32))
 	return &BloomFilter{
-		m:        n * 32,
-		k:        k,
-		buckets:  make([]uint32, n),
-		location: make([]uint32, k),
+		m:       n * 32,
+		k:       k,
+		buckets: make([]uint32, n),
 	}
 }
 
@@ -36,10 +34,9 @@ func NewFromBytes(bb []byte, k int) *BloomFilter {
 		ii[i] = binary.BigEndian.Uint32(bb[i*4 : (i+1)*4])
 	}
 	return &BloomFilter{
-		m:        uint32(len(ii) * 32),
-		k:        k,
-		buckets:  ii,
-		location: make([]uint32, k),
+		m:       uint32(len(ii) * 32),
+		k:       k,
+		buckets: ii,
 	}
 }
 
@@ -55,14 +52,15 @@ func EstimateParameters(n int, p float64) (m int, k int) {
 }
 
 func (bf *BloomFilter) locations(v []byte) []uint32 {
+	var r = make([]uint32, bf.k)
 	var a = fnv_1a(v, 0)
 	var b = fnv_1a(v, 1576284489)
 	var x = a % uint32(bf.m)
-	for i := range bf.location {
-		bf.location[i] = x
+	for i := range r {
+		r[i] = x
 		x = (x + b) % bf.m
 	}
-	return bf.location
+	return r
 }
 
 // Add adds a byte array to the bloom filter

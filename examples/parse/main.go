@@ -4,7 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 
-	"github.com/httpimp/bloomfilter"
+	"github.com/jda/bloomfilter"
 )
 
 func main() {
